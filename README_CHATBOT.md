@@ -1,11 +1,24 @@
-# 🤖 Qdrant + DeepSeek + Supabase Conversational Chatbot
+# 🤖 Agentic DPO — Botswana Data Protection Act AI Assistant
 
-A production-ready conversational AI chatbot built with Next.js that combines semantic search (Qdrant), large language models (DeepSeek), and persistent storage (Supabase).
+> **Created by [Obokeng Makwati](https://obokengmakwati.com)** — SEO-optimised for Botswana Data Protection Act queries.
+
+A production-ready conversational AI chatbot built with Next.js that combines semantic search (Qdrant), large language models (DeepSeek), and persistent storage (Supabase) — purpose-built to answer questions about **Botswana's Data Protection Act (DPA)**.
+
+## 🇧🇼 Focus: Botswana Data Protection Act
+
+This chatbot is specialised in:
+- The **Data Protection Act of Botswana** (Act No. 5 of 2018)
+- Data subject rights under Botswana law
+- Compliance obligations for data controllers and processors
+- Data breach notification procedures in Botswana
+- The Office of the Data Protection Commissioner
+- Penalties and enforcement under the DPA
+- Cross-border data transfers
 
 ## ✨ Features
 
-- **Semantic Search**: Uses Qdrant vector database to find relevant knowledge base documents
-- **LLM Integration**: Powered by DeepSeek for natural language understanding and response generation
+- **Semantic Search**: Uses Qdrant vector database to find relevant Data Protection Act documents
+- **LLM Integration**: Powered by DeepSeek for natural language understanding and DPA-specific responses
 - **Persistent History**: All conversations automatically saved to Supabase
 - **Multi-turn Conversations**: Remembers context across multiple exchanges
 - **Session Management**: Unique sessions per user with conversation resumption
@@ -110,15 +123,15 @@ scripts/
 ## 🔄 How It Works
 
 ```
-User Input
+User Input (DPA Question)
     ↓
 Session Management (Supabase)
     ↓
-Vector Search (Qdrant)
+Vector Search (Qdrant — Botswana DPA knowledge base)
     ↓
 Context Retrieval
     ↓
-LLM Processing (DeepSeek)
+LLM Processing (DeepSeek — DPA specialist)
     ↓
 Response Generation
     ↓
@@ -130,13 +143,13 @@ Display to User
 ## 📊 API Reference
 
 ### POST /api/chat
-Send a message and get an AI response.
+Send a message and get an AI response about Botswana's Data Protection Act.
 
 **Request:**
 ```json
 {
   "messages": [
-    {"role": "user", "content": "What is machine learning?"}
+    {"role": "user", "content": "What are my rights under the Botswana Data Protection Act?"}
   ],
   "sessionId": "550e8400-e29b-41d4-a716-446655440000"
 }
@@ -145,7 +158,7 @@ Send a message and get an AI response.
 **Response:**
 ```json
 {
-  "response": "Machine learning is...",
+  "response": "Under the Botswana DPA, you have the right to...",
   "context": "Relevant source information..."
 }
 ```
@@ -183,10 +196,10 @@ Retrieve conversation history.
 ## 🎯 Common Tasks
 
 ### Add Custom Knowledge Base
-1. Prepare your documents (markdown, text, or PDF)
+1. Prepare your Botswana DPA documents (markdown, text, or PDF)
 2. Generate embeddings (1536-dimensional vectors)
 3. Upload to Qdrant using the population script
-4. Test with queries about your documents
+4. Test with queries about the Data Protection Act
 
 ### Customize the UI
 - Edit components in `app/components/`
@@ -283,15 +296,17 @@ Typical response times:
 ## 🤝 Contributing
 
 We welcome contributions! Areas for improvement:
-- Enhanced error handling
+- Enhanced Botswana DPA knowledge base
 - Advanced caching strategies
 - Additional LLM model support
-- Improved prompt engineering
+- Improved prompt engineering for DPA
 - Performance optimizations
 
-## 📝 License
+## 📝 License & Attribution
 
 This project is open source and available under the MIT License.
+
+**Created by [Obokeng Makwati](https://obokengmakwati.com)**
 
 ## 🙋 Support
 
@@ -305,13 +320,13 @@ For issues and questions:
 
 1. Ensure all environment variables are set
 2. Create Supabase tables using the SQL provided
-3. Optionally populate Qdrant with your knowledge base
+3. Optionally populate Qdrant with your Botswana DPA knowledge base
 4. Run `pnpm dev`
 5. Visit http://localhost:3000
-6. Start chatting!
+6. Start chatting about Botswana's Data Protection Act!
 
 ---
 
-**Built with ❤️ using Next.js, Qdrant, DeepSeek, and Supabase**
+**Created by [Obokeng Makwati](https://obokengmakwati.com) — Agentic DPO: Your Botswana Data Protection Act AI Assistant**
 
 Ready to deploy? Check out [NEXT_STEPS.md](./NEXT_STEPS.md) for production guidance.

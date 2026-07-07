@@ -1,0 +1,19 @@
+{
+  "name": "Agentic DPO — Botswana Data Protection Act AI Assistant",
+  "short_name": "Agentic DPO",
+  "description": "Your AI expert on Botswana's Data Protection Act (DPA). Ask anything about data privacy rights, compliance, and more. Created by Obokeng Makwati.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0d9488",
+  "icons": [
+    {
+      "src": "/fav.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["education", "business", "productivity"],
+  "lang": "en-BW",
+  "orientation": "any"
+}

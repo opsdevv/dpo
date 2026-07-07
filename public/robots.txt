@@ -1,0 +1,7 @@
+# Agentic DPO — Botswana Data Protection Act AI Assistant
+# Created by Obokeng Makwati (https://obokengmakwati.com)
+
+User-agent: *
+Allow: /
+
+Sitemap: https://agenticdpo.com/sitemap.xml

@@ -702,6 +702,17 @@ export function ChatInterface() {
                 >
                   OBK
                 </a>
+                <span>•</span>
+                <span>Botswana Data Protection Act Expert</span>
+                <span>•</span>
+                <a
+                  href="https://obokengmakwati.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/50 hover:text-teal-400 transition-colors"
+                >
+                  © {new Date().getFullYear()} Agentic DPO
+                </a>
               </p>
             </footer>
           </div>

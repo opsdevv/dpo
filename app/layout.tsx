@@ -14,25 +14,86 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Search AI - Modern AI Search Interface",
-  description: "A modern, clean AI search interface inspired by Perplexity",
-  generator: "v0.app",
+  title: "Agentic DPO | Botswana Data Protection Act AI Assistant — Know Your DPA Rights",
+  description:
+    "Chat with an AI expert on Botswana's Data Protection Act (DPA). Understand your data privacy rights, compliance obligations, breach procedures, and how the DPA protects you. Built by Obokeng Makwati.",
+  generator: "Agentic DPO by Obokeng Makwati",
+  keywords: [
+    "Botswana Data Protection Act",
+    "Data Protection Act Botswana",
+    "DPA Botswana",
+    "Botswana data privacy law",
+    "data protection Botswana 2026",
+    "Botswana personal data protection",
+    "data privacy Botswana",
+    "Obokeng Makwati",
+    "Agentic DPO",
+    "Botswana data protection compliance",
+    "data subject rights Botswana",
+    "data breach Botswana",
+    "Botswana privacy law",
+    "ICBC Botswana data protection",
+    "data commissioner Botswana",
+    "POPIA Botswana",
+    "Botswana data protection act explained",
+    "data protection officer Botswana",
+  ],
+  authors: [{ name: "Obokeng Makwati" }],
+  creator: "Obokeng Makwati",
+  publisher: "Obokeng Makwati",
+  applicationName: "Agentic DPO",
+  openGraph: {
+    type: "website",
+    locale: "en_BW",
+    siteName: "Agentic DPO — Botswana Data Protection Act Expert",
+    title: "Agentic DPO | Botswana Data Protection Act AI Assistant",
+    description:
+      "Chat with an AI expert on Botswana's Data Protection Act (DPA). Understand your data privacy rights, compliance obligations, breach procedures, and how the DPA protects you. Built by Obokeng Makwati.",
+    url: "https://agenticdpo.com",
+    countryName: "Botswana",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Agentic DPO | Botswana Data Protection Act AI Assistant",
+    description:
+      "Chat with an AI expert on Botswana's Data Protection Act (DPA). Understand your data privacy rights, compliance obligations, and breach procedures.",
+    creator: "@obokengmakwati",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://agenticdpo.com",
+    languages: {
+      "en-BW": "https://agenticdpo.com",
+    },
+  },
+  category: "technology",
+  classification: "Data Protection & Privacy Law AI Assistant",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
+        url: "/fav.svg",
         type: "image/svg+xml",
+        sizes: "any",
       },
     ],
-    apple: "/apple-icon.png",
+    shortcut: "/fav.svg",
+    apple: "/fav.svg",
+  },
+  manifest: "/manifest.json",
+  other: {
+    "geo.region": "BW",
+    "geo.placename": "Botswana",
+    "og:country-name": "Botswana",
   },
 }
 
@@ -42,10 +103,116 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased">
-        {children}
-      </body>
+    <html lang="en-BW" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        {/* Structured Data — Organization + WebApp + FAQ about Botswana DPA */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  name: "Agentic DPO",
+                  description:
+                    "AI assistant specialised in the Botswana Data Protection Act. Built by Obokeng Makwati.",
+                  url: "https://agenticdpo.com",
+                  founder: {
+                    "@type": "Person",
+                    name: "Obokeng Makwati",
+                    url: "https://obokengmakwati.com",
+                  },
+                  address: {
+                    "@type": "PostalAddress",
+                    addressCountry: "BW",
+                  },
+                },
+                {
+                  "@type": "WebApplication",
+                  name: "Agentic DPO",
+                  url: "https://agenticdpo.com",
+                  description:
+                    "Conversational AI chatbot that answers questions about Botswana's Data Protection Act (DPA), data privacy rights, and compliance.",
+                  applicationCategory: "EducationalApplication",
+                  operatingSystem: "All",
+                  offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "BWP",
+                  },
+                  author: {
+                    "@type": "Person",
+                    name: "Obokeng Makwati",
+                  },
+                },
+                {
+                  "@type": "FAQPage",
+                  mainEntity: [
+                    {
+                      "@type": "Question",
+                      name: "What is the Data Protection Act in Botswana?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "The Data Protection Act (DPA) is Botswana's primary law governing the collection, processing, storage, and sharing of personal data. It establishes data subject rights, obligations for data controllers and processors, and the Office of the Data Protection Commissioner.",
+                      },
+                    },
+                    {
+                      "@type": "Question",
+                      name: "What are my rights under the Botswana Data Protection Act?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "Under Botswana's DPA, data subjects have rights including: the right to be informed, right of access, right to rectification, right to erasure, right to restrict processing, right to data portability, and the right to object to processing.",
+                      },
+                    },
+                    {
+                      "@type": "Question",
+                      name: "How do I report a data breach in Botswana?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "Data breaches in Botswana must be reported to the Data Protection Commissioner within 72 hours of becoming aware of the breach. Affected data subjects must also be notified without undue delay if the breach poses a risk to their rights and freedoms.",
+                      },
+                    },
+                    {
+                      "@type": "Question",
+                      name: "Who does the Botswana DPA apply to?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "The Botswana Data Protection Act applies to any person or entity that collects, processes, or stores personal data in Botswana, as well as entities outside Botswana that process data of data subjects in Botswana.",
+                      },
+                    },
+                    {
+                      "@type": "Question",
+                      name: "What is the penalty for non-compliance with Botswana's DPA?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "Non-compliance with Botswana's Data Protection Act can result in fines of up to P500,000 or imprisonment for up to 5 years, depending on the nature and severity of the offence. Reputational damage and business disruption are also significant consequences.",
+                      },
+                    },
+                  ],
+                },
+                {
+                  "@type": "WebSite",
+                  name: "Agentic DPO",
+                  url: "https://agenticdpo.com",
+                  about: {
+                    "@type": "Thing",
+                    name: "Botswana Data Protection Act",
+                    description:
+                      "The Data Protection Act of Botswana governs the processing of personal data, establishes the Data Protection Commissioner, and protects data subject rights.",
+                  },
+                  inLanguage: "en-BW",
+                  copyrightHolder: {
+                    "@type": "Person",
+                    name: "Obokeng Makwati",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+      </head>
+      <body className="antialiased">{children}</body>
     </html>
   )
 }
