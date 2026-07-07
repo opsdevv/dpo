@@ -59,3 +59,54 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Smooth type-reveal animation for streaming text */
+@keyframes type-reveal {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.type-reveal {
+  animation: type-reveal 0.15s ease-out forwards;
+}
+
+/* Blinking cursor for streaming effect */
+.stream-cursor::after {
+  content: '▊';
+  animation: blink-cursor 0.8s step-end infinite;
+  color: oklch(0.7 0.15 185 / 0.7);
+  margin-left: 2px;
+  font-size: 0.95em;
+  display: inline-block;
+  vertical-align: text-bottom;
+  line-height: 1;
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Typing word reveal for streaming chunks */
+@keyframes word-appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.streaming-content > * {
+  animation: word-appear 0.2s ease-out both;
+}

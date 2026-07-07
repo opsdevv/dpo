@@ -1,25 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { generateResponse, ChatMessage } from '@/lib/deepseek'
+import { NextRequest } from 'next/server'
+import { generateResponse, generateResponseStream, ChatMessage } from '@/lib/deepseek'
 import { searchPinecone } from '@/lib/pinecone'
 import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, sessionId } = await request.json()
+    const { messages, sessionId, stream: wantsStream } = await request.json()
 
     if (!messages || messages.length === 0) {
-      return NextResponse.json(
-        { error: 'No messages provided' },
-        { status: 400 }
-      )
+      return new Response(JSON.stringify({ error: 'No messages provided' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
 
     const userMessage = messages[messages.length - 1]?.content
     if (!userMessage) {
-      return NextResponse.json(
-        { error: 'Invalid message format' },
-        { status: 400 }
-      )
+      return new Response(JSON.stringify({ error: 'Invalid message format' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
 
     // Search Pinecone for relevant context
@@ -36,42 +36,121 @@ export async function POST(request: NextRequest) {
       console.error('Pinecone search failed:', error)
     }
 
-    // Generate response using DeepSeek with context
-    const response = await generateResponse(
-      messages as ChatMessage[],
-      context
-    )
-
-    // Store messages in Supabase
+    // Store user message immediately
     if (sessionId) {
       try {
-        // Store user message
         await supabase.from('chat_messages').insert({
           session_id: sessionId,
           role: 'user',
           content: userMessage
         })
+      } catch (error) {
+        console.error('Failed to store user message:', error)
+      }
+    }
 
-        // Store assistant response
+    // === STREAMING RESPONSE ===
+    if (wantsStream) {
+      const deepseekStream = await generateResponseStream(
+        messages as ChatMessage[],
+        context
+      )
+
+      const encoder = new TextEncoder()
+      let fullResponse = ''
+
+      // Create a ReadableStream that pipes DeepSeek's SSE into our SSE format
+      const stream = new ReadableStream({
+        async start(controller) {
+          const reader = deepseekStream.getReader()
+          const decoder = new TextDecoder()
+
+          try {
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) break
+
+              const chunk = decoder.decode(value, { stream: true })
+              const lines = chunk.split('\n')
+
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6)
+                  if (data === '[DONE]') {
+                    // Save full response to Supabase
+                    if (sessionId && fullResponse) {
+                      try {
+                        await supabase.from('chat_messages').insert({
+                          session_id: sessionId,
+                          role: 'assistant',
+                          content: fullResponse
+                        })
+                      } catch (error) {
+                        console.error('Failed to store assistant response:', error)
+                      }
+                    }
+                    controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                    continue
+                  }
+
+                  try {
+                    const parsed = JSON.parse(data)
+                    const content = parsed.choices?.[0]?.delta?.content || ''
+                    if (content) {
+                      fullResponse += content
+                      // Forward to client as simple { content } SSE
+                      controller.enqueue(
+                        encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
+                      )
+                    }
+                  } catch {
+                    // Skip malformed JSON lines from DeepSeek
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Stream reading error:', err)
+          } finally {
+            reader.releaseLock()
+            controller.close()
+          }
+        }
+      })
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      })
+    }
+
+    // === NON-STREAMING FALLBACK ===
+    const response = await generateResponse(messages as ChatMessage[], context)
+
+    // Store assistant response
+    if (sessionId) {
+      try {
         await supabase.from('chat_messages').insert({
           session_id: sessionId,
           role: 'assistant',
           content: response
         })
       } catch (error) {
-        console.error('Failed to store messages in Supabase:', error)
+        console.error('Failed to store assistant response:', error)
       }
     }
 
-    return NextResponse.json({
-      response,
-      context: context ? context.substring(0, 500) : null
+    return new Response(JSON.stringify({ response, context: context ? context.substring(0, 500) : null }), {
+      headers: { 'Content-Type': 'application/json' }
     })
   } catch (error) {
     console.error('Chat API error:', error)
-    return NextResponse.json(
-      { error: 'Failed to process chat request' },
-      { status: 500 }
-    )
+    return new Response(JSON.stringify({ error: 'Failed to process chat request' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 }

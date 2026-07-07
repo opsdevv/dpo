@@ -178,16 +178,18 @@ export function ChatInterface() {
   const [isFocused, setIsFocused] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null)
+  const [streamingId, setStreamingId] = useState<string | null>(null)
+  const messagesRef = useRef<Message[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Quick suggestion chips
+  // Quick suggestion chips — Data Protection Act focus
   const quickSuggestions = [
-    "What can you help me with?",
-    "Tell me about AI",
-    "Explain machine learning",
-    "Give me productivity tips"
+    "What is the Data Protection Act?",
+    "Explain my rights under the DPA",
+    "How do I handle a data breach?",
+    "Give me DPA compliance tips"
   ]
 
   // Initialize session
@@ -219,6 +221,11 @@ export function ChatInterface() {
       .catch(error => console.error('Failed to load history:', error))
   }, [])
 
+  // Keep messagesRef in sync with messages state
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -235,11 +242,25 @@ export function ChatInterface() {
       timestamp: new Date()
     }
 
+    // Use a ref to track the latest messages for the API call
+    const currentMessagesSnapshot = messagesRef.current
+
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsFocused(false)
     setShowSuggestions(false)
     setLoading(true)
+
+    // Create a placeholder assistant message that will reveal text as it streams
+    const assistantId = uuidv4()
+    setStreamingId(assistantId)
+    const assistantMessage: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, assistantMessage])
 
     try {
       const response = await fetch('/api/chat', {
@@ -247,41 +268,75 @@ export function ChatInterface() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [
-            ...messages.map(m => ({ role: m.role, content: m.content })),
+            ...currentMessagesSnapshot.map((m: Message) => ({ role: m.role, content: m.content })),
             { role: 'user', content: messageText }
           ],
-          sessionId
+          sessionId,
+          stream: true
         })
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get response')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to get response')
       }
 
-      const assistantMessage: Message = {
-        id: uuidv4(),
-        role: 'assistant',
-        content: data.response,
-        context: data.context,
-        timestamp: new Date()
-      }
+      // Read the stream
+      const reader = response.body?.getReader()
+      if (!reader) throw new Error('No response stream available')
 
-      setMessages(prev => [...prev, assistantMessage])
+      const decoder = new TextDecoder()
+      let accumulatedContent = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            if (data === '[DONE]') continue
+
+            try {
+              const parsed = JSON.parse(data)
+              const content = parsed.content || ''
+              if (content) {
+                accumulatedContent += content
+
+                // Update the message progressively for a smooth type reveal
+                // Updating on every chunk gives that real-time streaming feel
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === assistantId
+                      ? { ...msg, content: accumulatedContent }
+                      : msg
+                  )
+                )
+              }
+            } catch {
+              // Skip malformed JSON
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Chat error:', error)
-      const errorMessage: Message = {
-        id: uuidv4(),
-        role: 'assistant',
-        content: 'Oops! 😅 Something went wrong on my end. Could you try asking that again? I\'m all ears! 👂',
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, errorMessage])
+      // Replace the empty assistant message with an error
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === assistantId
+            ? { ...msg, content: 'Oops! 😅 Something went wrong on my end. Could you try asking that again? I\'m all ears! 👂' }
+            : msg
+        )
+      )
     } finally {
       setLoading(false)
+      setStreamingId(null)
     }
-  }, [input, loading, messages, sessionId])
+  }, [input, loading, sessionId])
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text)
@@ -332,7 +387,10 @@ export function ChatInterface() {
               
               <div className="text-center space-y-2">
                 <p className="text-sm md:text-base text-white/60">
-                  Powered by Qdrant, DeepSeek & Supabase
+                  Your AI Data Protection Expert
+                </p>
+                <p className="text-xs md:text-sm text-white/40 leading-relaxed max-w-lg mx-auto">
+                  Helping you reduce compliance risk, protect sensitive data, and avoid the costly consequences of data protection mistakes.
                 </p>
               </div>
 
@@ -356,9 +414,10 @@ export function ChatInterface() {
           <div className="max-w-4xl mx-auto w-full py-6 px-4 md:px-6 space-y-5">
             {messages.map((message) => {
               const parsed = message.role === 'assistant' ? parseResponse(message.content) : null
+              const isStreaming = message.id === streamingId
               
               return (
-                <div key={message.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div key={message.id} className={`animate-in fade-in slide-in-from-bottom-2 duration-300 ${isStreaming ? 'type-reveal' : ''}`}>
                   <div className={`flex gap-3 md:gap-4 ${
                     message.role === 'user' ? 'justify-end' : 'justify-start'
                   }`}>
@@ -383,30 +442,46 @@ export function ChatInterface() {
                         {message.role === 'user' ? (
                           <p className="text-[14px] md:text-[15px] leading-relaxed text-white">{message.content}</p>
                         ) : parsed ? (
-                          <div className="space-y-0.5">
-                            {parsed.blocks}
-                            
-                            {/* Suggested Topics Section */}
-                            {parsed.suggestions.length > 0 && (
-                              <div className="mt-5 pt-4 border-t border-white/10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Lightbulb className="h-4 w-4 text-amber-400" />
-                                  <span className="text-[13px] font-medium text-amber-300/90">Keep exploring</span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {parsed.suggestions.map((suggestion, sIdx) => (
-                                    <button
-                                      key={sIdx}
-                                      onClick={() => handleSuggestionClick(suggestion)}
-                                      disabled={loading}
-                                      className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-teal-500/30 transition-all duration-200 text-left disabled:opacity-50"
-                                    >
-                                      <MessageCircle className="h-3 w-3 text-teal-400 flex-shrink-0" />
-                                      <span className="text-[12px] text-white/60 group-hover:text-white/80 leading-snug">{suggestion}</span>
-                                    </button>
-                                  ))}
+                          <div className={`space-y-0.5 ${isStreaming && message.content.length > 0 ? 'stream-cursor streaming-content' : ''}`}>
+                            {message.content.length === 0 && isStreaming ? (
+                              <div className="flex items-center gap-3">
+                                <Spinner className="h-4 w-4 text-teal-500" />
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[14px] text-white/50 font-medium">Thinking</span>
+                                  <span className="flex gap-0.5">
+                                    <span className="w-1 h-1 bg-teal-400/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                    <span className="w-1 h-1 bg-teal-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                    <span className="w-1 h-1 bg-teal-400/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                  </span>
                                 </div>
                               </div>
+                            ) : (
+                              <>
+                                {parsed.blocks}
+                                
+                                {/* Suggested Topics Section */}
+                                {parsed.suggestions.length > 0 && (
+                                  <div className="mt-5 pt-4 border-t border-white/10">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <Lightbulb className="h-4 w-4 text-amber-400" />
+                                      <span className="text-[13px] font-medium text-amber-300/90">Keep exploring</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                      {parsed.suggestions.map((suggestion, sIdx) => (
+                                        <button
+                                          key={sIdx}
+                                          onClick={() => handleSuggestionClick(suggestion)}
+                                          disabled={loading}
+                                          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-teal-500/30 transition-all duration-200 text-left disabled:opacity-50"
+                                        >
+                                          <MessageCircle className="h-3 w-3 text-teal-400 flex-shrink-0" />
+                                          <span className="text-[12px] text-white/60 group-hover:text-white/80 leading-snug">{suggestion}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
                         ) : null}
@@ -477,33 +552,6 @@ export function ChatInterface() {
               )
             })}
 
-            {/* Loading indicator */}
-            {loading && (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="flex gap-3 md:gap-4">
-                  <div className="flex-shrink-0 mt-1">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-teal-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-teal-500/20">
-                      <Bot className="h-4 w-4 text-white" />
-                    </div>
-                  </div>
-                  <div className="max-w-2xl flex-1">
-                    <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl rounded-tl-sm px-4 md:px-5 py-3 md:py-3.5">
-                      <div className="flex items-center gap-3">
-                        <Spinner className="h-4 w-4 text-teal-500" />
-                        <div className="flex items-center gap-1">
-                          <span className="text-[14px] text-white/50 font-medium">Thinking</span>
-                          <span className="flex gap-0.5">
-                            <span className="w-1 h-1 bg-teal-400/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-1 h-1 bg-teal-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-1 h-1 bg-teal-400/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -517,9 +565,9 @@ export function ChatInterface() {
             {showSuggestions && input.trim() && !loading && (
               <div className="mb-2 flex flex-wrap gap-1.5">
                 {[
-                  `Tell me more about "${input}"`,
-                  `Explain like I'm 5`,
-                  `Give me examples`
+                  `DPA: "${input}"`,
+                  `Data breach procedures`,
+                  `GDPR vs DPA comparison`
                 ].map((s, idx) => (
                   <button
                     key={idx}
