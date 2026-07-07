@@ -208,7 +208,7 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
 
       {hoveredMode && (
         <div
-          className="animate-in fade-in slide-in-from-top-2 duration-200 absolute top-full mt-2 w-[340px] rounded-xl border border-border/50 bg-[#1a1a1a] p-3 text-white shadow-xl"
+          className="animate-in fade-in slide-in-from-top-2 duration-200 absolute top-full mt-2 w-[340px] rounded-xl border border-border/50 bg-card p-3 text-foreground shadow-xl"
           style={{
             left: `${tooltipOffset}px`,
             transform: "translateX(-50%)",
@@ -219,18 +219,18 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
               <div className="flex items-center gap-1.5 mb-1">
                 <h3 className="text-sm font-semibold">{modeTooltips[hoveredMode].title}</h3>
                 {modeTooltips[hoveredMode].badge && (
-                  <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium text-zinc-300">
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                     {modeTooltips[hoveredMode].badge}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-zinc-300 mb-2.5 leading-relaxed">
+              <p className="text-[11px] text-muted-foreground mb-2.5 leading-relaxed">
                 {modeTooltips[hoveredMode].description}
               </p>
             </div>
           </div>
 
-          <div className="border-t border-zinc-800 pt-2.5">
+          <div className="border-t border-border pt-2.5">
             <div className="flex items-center gap-1.5 mb-1">
               <span className="rounded bg-teal-600 px-1.5 py-0.5 text-[9px] font-bold text-white">pro</span>
               <div className="flex items-center gap-1">
@@ -240,13 +240,13 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
                 </svg>
               </div>
             </div>
-            <p className="text-[11px] text-zinc-300 mb-1.5 leading-relaxed">
+            <p className="text-[11px] text-muted-foreground mb-1.5 leading-relaxed">
               {modeTooltips[hoveredMode].proDescription}
             </p>
-            <p className="text-[10px] text-zinc-500">{modeTooltips[hoveredMode].footer}</p>
+            <p className="text-[10px] text-muted-foreground/60">{modeTooltips[hoveredMode].footer}</p>
           </div>
 
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 border-l border-t border-border/50 bg-[#1a1a1a]" />
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 border-l border-t border-border/50 bg-card" />
         </div>
       )}
     </div>

@@ -125,14 +125,14 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Banner Advertising Space */}
-      <div className="border-b border-border bg-card/50">
+      <div className="border-b border-white/10 bg-white/5">
         <div className="max-w-4xl mx-auto w-full px-4 md:px-6 py-3 md:py-4">
-          <div className="flex items-center justify-center min-h-[60px] md:min-h-[80px] rounded-lg border-2 border-dashed border-border bg-muted/30">
+          <div className="flex items-center justify-center min-h-[60px] md:min-h-[80px] rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02]">
             <div className="text-center">
-              <p className="text-xs md:text-sm font-medium text-muted-foreground">Advertisement Space</p>
-              <p className="text-[10px] text-muted-foreground/60">728x90 or 300x250 recommended</p>
+              <p className="text-xs md:text-sm font-medium text-white/40">Advertisement Space</p>
+              <p className="text-[10px] text-white/30">728x90 or 300x250 recommended</p>
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@ export function ChatInterface() {
             <div className="w-full max-w-3xl space-y-6 md:space-y-8 px-4 md:px-6">
               <header className="flex items-center justify-center">
                 <div className="flex items-center gap-0">
-                  <span className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">perplexity</span>
+                  <span className="text-2xl md:text-3xl font-bold tracking-tight text-white">Agentic DPO</span>
                   <span className="ml-1 rounded-full bg-teal-600 px-2 md:px-2.5 py-0.5 text-[10px] md:text-xs font-semibold text-white">
                     pro
                   </span>
@@ -156,7 +156,7 @@ export function ChatInterface() {
               </header>
               
               <div className="text-center space-y-2">
-                <p className="text-sm md:text-base text-muted-foreground">
+                <p className="text-sm md:text-base text-white/60">
                   Powered by Qdrant, DeepSeek & Supabase
                 </p>
               </div>
@@ -182,18 +182,18 @@ export function ChatInterface() {
                     className={`px-4 md:px-5 py-3 md:py-3.5 rounded-2xl animate-in fade-in slide-in-from-bottom-2 duration-300 ${
                       message.role === 'user'
                         ? 'bg-teal-600 text-white rounded-tr-sm'
-                        : 'bg-card border border-border/50'
+                        : 'bg-white/5 border border-white/10'
                     }`}
                   >
-                    <p className="text-[14px] md:text-[15px] leading-relaxed whitespace-pre-wrap">
+                    <p className="text-[14px] md:text-[15px] leading-relaxed whitespace-pre-wrap text-white">
                       {message.content}
                     </p>
                   </div>
 
                   {message.context && message.role === 'assistant' && (
                     <div className="px-1 py-1 flex flex-wrap gap-2">
-                      <span className="text-[11px] text-muted-foreground">Sources:</span>
-                      <p className="text-[11px] text-muted-foreground line-clamp-1">{message.context}</p>
+                      <span className="text-[11px] text-white/40">Sources:</span>
+                      <p className="text-[11px] text-white/40 line-clamp-1">{message.context}</p>
                     </div>
                   )}
 
@@ -203,21 +203,21 @@ export function ChatInterface() {
                         size="sm"
                         variant="ghost"
                         onClick={() => copyToClipboard(message.content)}
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                        className="h-7 w-7 p-0 text-white/40 hover:text-white hover:bg-white/10"
                       >
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                        className="h-7 w-7 p-0 text-white/40 hover:text-white hover:bg-white/10"
                       >
                         <ThumbsUp className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                        className="h-7 w-7 p-0 text-white/40 hover:text-white hover:bg-white/10"
                       >
                         <ThumbsDown className="h-3.5 w-3.5" />
                       </Button>
@@ -233,10 +233,10 @@ export function ChatInterface() {
                   <span className="text-xs font-bold text-white">p</span>
                 </div>
                 <div className="max-w-2xl">
-                  <div className="px-4 md:px-5 py-3 md:py-3.5 rounded-2xl bg-card border border-border/50">
+                  <div className="px-4 md:px-5 py-3 md:py-3.5 rounded-2xl bg-white/5 border border-white/10">
                     <div className="flex items-center gap-2">
-                      <Spinner className="h-4 w-4 text-teal-600" />
-                      <p className="text-[14px] md:text-[15px] text-muted-foreground">Thinking...</p>
+                      <Spinner className="h-4 w-4 text-teal-500" />
+                      <p className="text-[14px] md:text-[15px] text-white/60">Thinking...</p>
                     </div>
                   </div>
                 </div>
@@ -247,13 +247,13 @@ export function ChatInterface() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-background">
+      <div className="border-t border-white/10 bg-white/5">
         <div className="flex items-center justify-center px-4 md:px-6 py-4 md:py-6">
           <div className="w-full max-w-3xl">
             <div className="relative">
               <div
-                className={`animate-in fade-in slide-in-from-bottom-4 duration-500 rounded-2xl border-2 bg-card shadow-[0_4px_20px_rgb(0,0,0,0.03)] transition-all hover:shadow-[0_4px_30px_rgb(0,0,0,0.06)] ${
-                  isFocused ? 'border-teal-500/50 ring-1 ring-teal-500/20' : 'border-teal-500/20 hover:border-teal-500/30'
+                className={`animate-in fade-in slide-in-from-bottom-4 duration-500 rounded-2xl border-2 bg-slate-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.3)] transition-all hover:shadow-[0_4px_30px_rgba(0,0,0,0.5)] ${
+                  isFocused ? 'border-teal-500/50 ring-1 ring-teal-500/20' : 'border-white/10 hover:border-white/20'
                 }`}
               >
                 {/* Input */}
@@ -275,7 +275,7 @@ export function ChatInterface() {
                     }}
                     placeholder="Ask anything..."
                     disabled={loading}
-                    className="w-full border-0 bg-transparent text-[14px] md:text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none disabled:opacity-50"
+                    className="w-full border-0 bg-transparent text-[14px] md:text-[15px] text-white placeholder:text-white/30 focus:outline-none disabled:opacity-50"
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                         handleSubmit(e)
@@ -285,25 +285,25 @@ export function ChatInterface() {
                 </div>
 
                 <div className="flex items-center justify-between px-2 md:px-2.5 py-2 gap-2">
-                  <div className="relative flex items-center gap-0.5 rounded-lg bg-accent/30 p-0.5">
+                  <div className="relative flex items-center gap-0.5 rounded-lg bg-white/5 p-0.5">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-8 w-8 md:h-9 md:w-9 rounded-md transition-all duration-300 border-2 border-teal-500/60 bg-background text-teal-600 shadow-sm hover:border-teal-500/70 hover:text-teal-700 dark:text-teal-500`}
+                      className={`h-8 w-8 md:h-9 md:w-9 rounded-md transition-all duration-300 border-2 border-teal-500/60 bg-slate-800 text-teal-500 shadow-sm hover:border-teal-500/70 hover:text-teal-400`}
                     >
                       <Search className="h-4 w-4 md:h-[17px] md:w-[17px]" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-8 w-8 md:h-9 md:w-9 rounded-md transition-all duration-300 border-2 border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground`}
+                      className={`h-8 w-8 md:h-9 md:w-9 rounded-md transition-all duration-300 border-2 border-transparent text-white/40 hover:bg-white/10 hover:text-white`}
                     >
                       <Focus className="h-4 w-4 md:h-[17px] md:w-[17px]" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-8 w-8 md:h-9 md:w-9 rounded-md transition-all duration-300 border-2 border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground`}
+                      className={`h-8 w-8 md:h-9 md:w-9 rounded-md transition-all duration-300 border-2 border-transparent text-white/40 hover:bg-white/10 hover:text-white`}
                     >
                       <Grid3x3 className="h-4 w-4 md:h-[17px] md:w-[17px]" />
                     </Button>
@@ -314,7 +314,7 @@ export function ChatInterface() {
                       variant="ghost"
                       size="icon"
                       disabled={loading}
-                      className="hidden sm:flex h-9 w-9 rounded-lg text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
+                      className="hidden sm:flex h-9 w-9 rounded-lg text-white/40 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
                     >
                       <Globe className="h-[17px] w-[17px]" />
                     </Button>
@@ -322,7 +322,7 @@ export function ChatInterface() {
                       variant="ghost"
                       size="icon"
                       disabled={loading}
-                      className="hidden sm:flex h-9 w-9 rounded-lg text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
+                      className="hidden sm:flex h-9 w-9 rounded-lg text-white/40 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
                     >
                       <Cpu className="h-[17px] w-[17px]" />
                     </Button>
@@ -330,7 +330,7 @@ export function ChatInterface() {
                       variant="ghost"
                       size="icon"
                       disabled={loading}
-                      className="h-8 w-8 md:h-9 md:w-9 rounded-lg text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
+                      className="h-8 w-8 md:h-9 md:w-9 rounded-lg text-white/40 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
                     >
                       <Paperclip className="h-4 w-4 md:h-[17px] md:w-[17px]" />
                     </Button>
@@ -338,7 +338,7 @@ export function ChatInterface() {
                       variant="ghost"
                       size="icon"
                       disabled={loading}
-                      className="h-8 w-8 md:h-9 md:w-9 rounded-lg text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
+                      className="h-8 w-8 md:h-9 md:w-9 rounded-lg text-white/40 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
                     >
                       <Mic className="h-4 w-4 md:h-[17px] md:w-[17px]" />
                     </Button>
@@ -362,13 +362,13 @@ export function ChatInterface() {
             </div>
 
             <footer className="flex items-center justify-center gap-1 pt-4">
-              <p className="flex flex-wrap items-center justify-center gap-1 text-[11px] md:text-xs text-muted-foreground text-center">
+              <p className="flex flex-wrap items-center justify-center gap-1 text-[11px] md:text-xs text-white/40 text-center">
                 <span>Developed by</span>
                 <a
                   href="https://obokengmakwati.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-foreground font-medium hover:text-teal-600 transition-colors underline"
+                  className="text-white font-medium hover:text-teal-400 transition-colors underline"
                 >
                   OBK
                 </a>

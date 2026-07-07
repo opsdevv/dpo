@@ -23,7 +23,7 @@ export function WidgetCards() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 grid grid-cols-1 gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* Clock Widget */}
-      <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-card p-6 shadow-sm transition-all hover:shadow-lg">
+      <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-sm transition-all hover:shadow-lg">
         <div className="flex flex-col items-center justify-center space-y-4">
           {/* Analog Clock */}
           <div className="relative h-40 w-40">
@@ -45,7 +45,7 @@ export function WidgetCards() {
                     y2={y2}
                     stroke="currentColor"
                     strokeWidth={i % 3 === 0 ? "3" : "2"}
-                    className="text-foreground/20"
+                    className="text-white/20"
                   />
                 )
               })}
@@ -59,7 +59,7 @@ export function WidgetCards() {
                 stroke="currentColor"
                 strokeWidth="6"
                 strokeLinecap="round"
-                className="text-foreground transition-all duration-1000"
+                className="text-white transition-all duration-1000"
               />
 
               {/* Minute Hand */}
@@ -71,7 +71,7 @@ export function WidgetCards() {
                 stroke="currentColor"
                 strokeWidth="4"
                 strokeLinecap="round"
-                className="text-foreground transition-all duration-1000"
+                className="text-white transition-all duration-1000"
               />
 
               {/* Second Hand */}
@@ -87,27 +87,27 @@ export function WidgetCards() {
               />
 
               {/* Center Dot */}
-              <circle cx="100" cy="100" r="4" fill="currentColor" className="text-foreground" />
+              <circle cx="100" cy="100" r="4" fill="currentColor" className="text-white" />
               <circle cx="100" cy="100" r="2" fill="currentColor" className="text-orange-500" />
             </svg>
 
             {/* Digital Time */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-8 text-center">
-              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">SAT</div>
-              <div className="text-sm font-medium text-foreground">
+              <div className="text-xs font-medium uppercase tracking-wide text-white/40">SAT</div>
+              <div className="text-sm font-medium text-white">
                 {time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
               </div>
             </div>
           </div>
 
           <div className="text-center">
-            <div className="text-lg font-medium text-foreground">Dubai</div>
+            <div className="text-lg font-medium text-white">Dubai</div>
           </div>
         </div>
       </div>
 
       {/* Assistant CTA Widget */}
-      <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-sm transition-all hover:shadow-lg">
+      <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-sm transition-all hover:shadow-lg">
         <img
           src="/images/screenshot-202026-01-17-20at-208.png"
           alt="Space background"
@@ -121,14 +121,14 @@ export function WidgetCards() {
       </div>
 
       {/* Stock Widget */}
-      <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-card p-6 shadow-sm transition-all hover:shadow-lg">
+      <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-sm transition-all hover:shadow-lg">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-2xl font-semibold text-foreground">NVDA</div>
-              <div className="text-sm text-muted-foreground">NVIDIA Corporation</div>
+              <div className="text-2xl font-semibold text-white">NVDA</div>
+              <div className="text-sm text-white/40">NVIDIA Corporation</div>
             </div>
-            <div className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 dark:bg-red-950/30 dark:text-red-400">
+            <div className="rounded-full bg-red-950/30 px-2.5 py-1 text-xs font-medium text-red-400">
               ↘ 0.41%
             </div>
           </div>
@@ -158,17 +158,17 @@ export function WidgetCards() {
                 stroke="currentColor"
                 strokeWidth="1"
                 strokeDasharray="4 4"
-                className="text-border opacity-50"
+                className="text-white/10 opacity-50"
               />
             </svg>
           </div>
 
-          <div className="text-3xl font-semibold text-foreground">$186.23</div>
+          <div className="text-3xl font-semibold text-white">$186.23</div>
         </div>
       </div>
 
       {/* Weather Widget */}
-      <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-6 shadow-sm transition-all hover:shadow-lg">
+      <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-6 shadow-sm transition-all hover:shadow-lg">
         <div className="flex h-full flex-col justify-between text-white">
           <div className="flex items-start justify-between">
             <div className="text-5xl font-light">21° C</div>

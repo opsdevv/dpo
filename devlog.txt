@@ -1,0 +1,17 @@
+> my-v0-project@0.1.0 dev
+> next dev -p 3001
+
+▲ Next.js 15.5.20
+- Local:        http://localhost:3001
+- Network:      http://192.168.1.132:3001
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 2.8s
+
+Routes available:
+- http://localhost:3001             - Chat interface
+- http://localhost:3001/096gbjeg653 - Document upload page
+- http://localhost:3001/api/chat    - Chat API
+- http://localhost:3001/api/history  - History API  
+- http://localhost:3001/api/upload   - Upload API

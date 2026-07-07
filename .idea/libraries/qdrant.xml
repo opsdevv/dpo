@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="qdrant">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/qdrant.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
