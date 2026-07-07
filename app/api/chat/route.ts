@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateResponse, ChatMessage } from '@/lib/deepseek'
-import { searchQdrant } from '@/lib/qdrant'
+import { searchPinecone } from '@/lib/pinecone'
 import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
@@ -22,10 +22,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Search Qdrant for relevant context
+    // Search Pinecone for relevant context
     let context = ''
     try {
-      const searchResults = await searchQdrant(userMessage, 5)
+      const searchResults = await searchPinecone(userMessage, 5)
       if (searchResults && Array.isArray(searchResults)) {
         context = searchResults
           .map((result: any) => result.payload?.text || '')
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
           .join('\n\n')
       }
     } catch (error) {
-      console.error('Qdrant search failed:', error)
+      console.error('Pinecone search failed:', error)
     }
 
     // Generate response using DeepSeek with context

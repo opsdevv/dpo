@@ -2,8 +2,30 @@
 
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2, ArrowLeft } from "lucide-react"
+import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2, ArrowLeft, Database, FileType, Hash, BookText, TextSelect, Info, Cpu } from "lucide-react"
 import Link from "next/link"
+
+interface UploadDetails {
+  rawFileSize?: string
+  extractedTextLength?: string
+  wordCount?: string
+  lineCount?: string
+  extractionMethod?: string
+  storage?: string
+}
+
+interface UploadResult {
+  success: boolean
+  message: string
+  id?: string
+  title?: string
+  fileType?: string
+  size?: number
+  wordCount?: number
+  lineCount?: number
+  extractionMethod?: string
+  details?: UploadDetails
+}
 
 export default function DocumentUploadPage() {
   const router = useRouter()
@@ -14,7 +36,7 @@ export default function DocumentUploadPage() {
   const [category, setCategory] = useState("general")
   const [source, setSource] = useState("manual-upload")
   const [uploading, setUploading] = useState(false)
-  const [result, setResult] = useState<{ success: boolean; message: string; id?: string } | null>(null)
+  const [result, setResult] = useState<UploadResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
 
   const handleDrag = (e: React.DragEvent) => {
@@ -75,15 +97,24 @@ export default function DocumentUploadPage() {
       if (res.ok && data.success) {
         setResult({
           success: true,
-          message: `Document "${data.title}" uploaded successfully! (${data.size} characters)`,
+          message: `Document "${data.title}" uploaded successfully!`,
           id: data.id,
+          title: data.title,
+          fileType: data.fileType,
+          size: data.size,
+          wordCount: data.wordCount,
+          lineCount: data.lineCount,
+          extractionMethod: data.extractionMethod,
+          details: data.details,
         })
         setTextInput("")
         setTitle("")
         setFile(null)
         if (fileInputRef.current) fileInputRef.current.value = ""
       } else {
-        setResult({ success: false, message: data.error || "Upload failed" })
+        const errorMsg = data.error || "Upload failed"
+        const details = data.stack ? `\n\nDetails: ${data.stack.split('\n')[0]}` : ""
+        setResult({ success: false, message: errorMsg + details })
       }
     } catch (error) {
       setResult({ success: false, message: "Network error. Is the server running?" })
@@ -269,26 +300,108 @@ export default function DocumentUploadPage() {
 
           {/* Result Message */}
           {result && (
-            <div
-              className={`flex items-start gap-3 p-4 rounded-xl border ${
-                result.success
-                  ? "bg-green-500/10 border-green-500/30 text-green-400"
-                  : "bg-red-500/10 border-red-500/30 text-red-400"
-              }`}
-            >
-              {result.success ? (
-                <CheckCircle className="w-5 h-5 mt-0.5 shrink-0" />
-              ) : (
-                <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
-              )}
-              <div>
-                <p className="font-medium">{result.success ? "Success!" : "Error"}</p>
-                <p className="text-sm mt-1 opacity-80">{result.message}</p>
-                {result.id && (
-                  <p className="text-xs mt-2 opacity-60">Document ID: {result.id}</p>
-                )}
+            result.success ? (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl overflow-hidden">
+                {/* Success Header */}
+                <div className="flex items-start gap-3 p-4 text-green-400 border-b border-green-500/20">
+                  <CheckCircle className="w-5 h-5 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium text-green-300">Upload Successful ✅</p>
+                    <p className="text-sm mt-1 opacity-80">{result.message}</p>
+                  </div>
+                </div>
+                
+                {/* Details Section */}
+                <div className="p-4 space-y-3">
+                  <h3 className="text-sm font-medium text-white/60 flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Stored Document Details
+                  </h3>
+                  
+                  {result.details && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Title</span>
+                        </div>
+                        <p className="text-sm font-medium text-white truncate">{result.title || 'Untitled'}</p>
+                      </div>
+                      
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
+                          <FileType className="w-3.5 h-3.5" />
+                          <span>File Type</span>
+                        </div>
+                        <p className="text-sm font-medium text-white uppercase">{result.fileType || 'text'}</p>
+                      </div>
+                      
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
+                          <Database className="w-3.5 h-3.5" />
+                          <span>Raw File Size</span>
+                        </div>
+                        <p className="text-sm font-medium text-white">{result.details.rawFileSize}</p>
+                      </div>
+                      
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
+                          <TextSelect className="w-3.5 h-3.5" />
+                          <span>Extracted Text</span>
+                        </div>
+                        <p className="text-sm font-medium text-white">{result.details.extractedTextLength}</p>
+                      </div>
+                      
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
+                          <Hash className="w-3.5 h-3.5" />
+                          <span>Word Count</span>
+                        </div>
+                        <p className="text-sm font-medium text-white">{result.details.wordCount}</p>
+                      </div>
+                      
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
+                          <BookText className="w-3.5 h-3.5" />
+                          <span>Line Count</span>
+                        </div>
+                        <p className="text-sm font-medium text-white">{result.details.lineCount}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Extraction Method & Storage */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    <div className="flex items-center gap-2 text-xs text-white/40">
+                      <Cpu className="w-3.5 h-3.5" />
+                      <span>Extraction Method:</span>
+                      <span className="text-blue-400 font-medium">{result.extractionMethod || result.details?.extractionMethod}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-white/40">
+                      <Database className="w-3.5 h-3.5" />
+                      <span>Storage:</span>
+                      <span className="text-blue-400 font-medium">{result.details?.storage}</span>
+                    </div>
+                  </div>
+                  
+                  {result.id && (
+                    <div className="mt-2 pt-3 border-t border-white/10">
+                      <p className="text-xs text-white/30 font-mono">
+                        Document ID: <span className="text-white/50">{result.id}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-start gap-3 p-4 rounded-xl border bg-red-500/10 border-red-500/30 text-red-400">
+                <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium">Error</p>
+                  <p className="text-sm mt-1 opacity-80">{result.message}</p>
+                </div>
+              </div>
+            )
           )}
 
           {/* Back to Chat */}

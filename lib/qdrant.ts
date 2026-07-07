@@ -1,3 +1,5 @@
+import { generateSimpleEmbedding } from './embeddings'
+
 const QDRANT_URL = process.env.QDRANT_URL
 const QDRANT_API_KEY = process.env.QDRANT_API_KEY
 
@@ -7,24 +9,30 @@ if (!QDRANT_URL || !QDRANT_API_KEY) {
 
 export async function searchQdrant(query: string, limit: number = 5) {
   try {
-    // For now, we'll return a placeholder response
-    // In production, you would embed the query and search the collection
-    const response = await fetch(`${QDRANT_URL}/collections`, {
+    // Generate embedding for the search query
+    const vector = generateSimpleEmbedding(query)
+
+    // Perform search in Qdrant
+    const response = await fetch(`${QDRANT_URL}/collections/knowledge_base/points/search`, {
+      method: 'POST',
       headers: {
         'api-key': QDRANT_API_KEY,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        vector: vector,
+        limit: limit,
+        with_payload: true
+      })
     })
 
     if (!response.ok) {
-      console.warn('Qdrant connection failed, returning default context')
+      console.warn('Qdrant search failed, returning default context')
       return []
     }
 
-    // This is a placeholder - in production you'd perform actual semantic search
-    return [
-      { payload: { text: 'Knowledge base information not available yet. Please add documents to your Qdrant collection.' } }
-    ]
+    const data = await response.json()
+    return data.result || []
   } catch (error) {
     console.error('Qdrant search error:', error)
     return []

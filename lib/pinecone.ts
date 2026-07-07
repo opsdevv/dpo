@@ -3,10 +3,14 @@ import { generateSimpleEmbedding } from './embeddings'
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY
 const PINECONE_INDEX = process.env.PINECONE_INDEX || 'knowledge-base'
 
+let cachedHost: string | null = null
+
 /**
  * Get the host URL for the Pinecone index
  */
 async function getIndexHost() {
+  if (cachedHost) return cachedHost
+
   const response = await fetch(`https://api.pinecone.io/indexes/${PINECONE_INDEX}`, {
     headers: {
       'Api-Key': PINECONE_API_KEY!,
@@ -16,17 +20,51 @@ async function getIndexHost() {
 
   if (!response.ok) {
     if (response.status === 404) {
-      // Index doesn't exist, we might need to create it
-      // For now, throw error so the user knows to create it in the dashboard
-      // or we can try to create it here.
-      throw new Error(`Pinecone index "${PINECONE_INDEX}" not found. Please create it in your Pinecone dashboard with 384 dimensions.`)
+      throw new Error(`Pinecone index "${PINECONE_INDEX}" not found. Please wait for initialization or create it in the dashboard.`)
     }
     const error = await response.text()
     throw new Error(`Failed to get Pinecone index info: ${error}`)
   }
 
   const data = await response.json()
-  return data.host
+
+  if (!data.host) {
+    throw new Error(`Pinecone index "${PINECONE_INDEX}" is still initializing. Please try again in a minute.`)
+  }
+
+  cachedHost = data.host
+  return cachedHost
+}
+
+/**
+ * Simple text chunking function to stay within Pinecone metadata limits (40KB)
+ * and improve retrieval relevance.
+ */
+function chunkText(text: string, maxLength: number = 30000): string[] {
+  const chunks: string[] = []
+  let currentPos = 0
+
+  while (currentPos < text.length) {
+    let endPos = currentPos + maxLength
+
+    if (endPos < text.length) {
+      // Try to find a good breaking point (newline or space)
+      const lastNewline = text.lastIndexOf('\n', endPos)
+      if (lastNewline > currentPos + maxLength / 2) {
+        endPos = lastNewline
+      } else {
+        const lastSpace = text.lastIndexOf(' ', endPos)
+        if (lastSpace > currentPos + maxLength / 2) {
+          endPos = lastSpace
+        }
+      }
+    }
+
+    chunks.push(text.substring(currentPos, endPos).trim())
+    currentPos = endPos
+  }
+
+  return chunks.filter(c => c.length > 0)
 }
 
 export async function upsertToPinecone(doc: {
@@ -40,40 +78,51 @@ export async function upsertToPinecone(doc: {
   extractionMethod?: string
 }) {
   const host = await getIndexHost()
-  const embedding = generateSimpleEmbedding(doc.text)
 
-  const response = await fetch(`https://${host}/vectors/upsert`, {
-    method: 'POST',
-    headers: {
-      'Api-Key': PINECONE_API_KEY!,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      vectors: [
-        {
-          id: doc.id,
-          values: embedding,
-          metadata: {
-            title: doc.title,
-            text: doc.text,
-            source: doc.source || 'manual-upload',
-            category: doc.category || 'general',
-            fileType: doc.fileType || 'text',
-            wordCount: doc.wordCount || 0,
-            extractionMethod: doc.extractionMethod || 'direct-input',
-            timestamp: new Date().toISOString()
-          }
-        }
-      ]
-    })
+  // Break the text into chunks to avoid the 40KB metadata limit
+  const chunks = chunkText(doc.text)
+  console.log(`upsertToPinecone: Splitting document into ${chunks.length} chunks.`)
+
+  const vectors = chunks.map((chunk, i) => {
+    const embedding = generateSimpleEmbedding(chunk)
+    return {
+      id: chunks.length === 1 ? doc.id : `${doc.id}#chunk-${i}`,
+      values: embedding,
+      metadata: {
+        title: doc.title,
+        text: chunk,
+        source: doc.source || 'manual-upload',
+        category: doc.category || 'general',
+        fileType: doc.fileType || 'text',
+        wordCount: doc.wordCount || 0,
+        extractionMethod: doc.extractionMethod || 'direct-input',
+        timestamp: new Date().toISOString(),
+        chunkIndex: i,
+        totalChunks: chunks.length
+      }
+    }
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Pinecone upsert failed: ${error}`)
+  // Upsert in batches if there are many chunks (Pinecone recommends batches < 100)
+  const batchSize = 50
+  for (let i = 0; i < vectors.length; i += batchSize) {
+    const batch = vectors.slice(i, i + batchSize)
+    const response = await fetch(`https://${host}/vectors/upsert`, {
+      method: 'POST',
+      headers: {
+        'Api-Key': PINECONE_API_KEY!,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ vectors: batch })
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Pinecone upsert failed (batch ${i/batchSize}): ${error}`)
+    }
   }
 
-  return response.json()
+  return { success: true, chunksProcessed: chunks.length }
 }
 
 export async function searchPinecone(query: string, limit: number = 5) {
