@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { Copy, ThumbsUp, ThumbsDown, Search, Focus, Grid3x3, Globe, Cpu, Paperclip, Mic, Sparkles, ArrowRight, MessageCircle, Lightbulb, Bot } from 'lucide-react'
+import { Copy, ThumbsUp, ThumbsDown, Search, Focus, Grid3x3, Globe, Cpu, Paperclip, Mic, Sparkles, ArrowRight, MessageCircle, Lightbulb, Bot, Plus, Trash2 } from 'lucide-react'
 
 // Use browser's crypto.randomUUID() instead of uuid package to avoid Webpack issues
 const uuidv4 = () => {
@@ -203,9 +203,12 @@ export function ChatInterface() {
   ]
 
   // Initialize session
-  useEffect(() => {
-    const newSessionId = uuidv4()
+  const initSession = useCallback((sessionOverride?: string) => {
+    const newSessionId = sessionOverride || uuidv4()
     setSessionId(newSessionId)
+    setMessages([])
+    setInput('')
+    setShowSuggestions(false)
 
     // Create session in database
     fetch('/api/history', {
@@ -230,6 +233,24 @@ export function ChatInterface() {
       })
       .catch(error => console.error('Failed to load history:', error))
   }, [])
+
+  useEffect(() => {
+    initSession()
+  }, [initSession])
+
+  const startNewChat = useCallback(() => {
+    // Confirm before clearing if there are messages
+    if (messages.length > 0 && !window.confirm('Start a new chat? This will clear the current conversation.')) {
+      return
+    }
+    // Delete current session from history
+    if (sessionId) {
+      fetch(`/api/history?sessionId=${sessionId}`, {
+        method: 'DELETE',
+      }).catch(error => console.error('Failed to delete session:', error))
+    }
+    initSession(uuidv4())
+  }, [sessionId, messages.length, initSession])
 
   // Keep messagesRef in sync with messages state
   useEffect(() => {
@@ -366,9 +387,23 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-0">
-      {/* Banner Advertising Space */}
+      {/* Top Bar — New Chat + Banner */}
       <div className="border-b border-white/10 bg-white/5 shrink-0">
         <div className="max-w-4xl mx-auto w-full px-2 md:px-6 py-1.5 md:py-4">
+          {/* New Chat Button */}
+          <div className="flex items-center justify-end mb-1.5 md:mb-2">
+            <button
+              onClick={startNewChat}
+              disabled={loading}
+              className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-teal-500/30 transition-all duration-200 disabled:opacity-50"
+              title="Start new chat"
+            >
+              <Plus className="h-3.5 w-3.5 text-teal-400" />
+              <span className="text-[12px] text-white/50 group-hover:text-white/80">New Chat</span>
+            </button>
+          </div>
+
+          {/* Banner ad space */}
           <div className="flex items-center justify-center min-h-[40px] md:min-h-[80px] rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02]">
             <div className="text-center">
               <p className="text-[10px] md:text-sm font-medium text-white/40">Advertisement Space</p>

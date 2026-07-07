@@ -36,6 +36,55 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const sessionId = request.nextUrl.searchParams.get('sessionId')
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: 'Session ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Delete messages for this session
+    const { error: messagesError } = await supabase
+      .from('chat_messages')
+      .delete()
+      .eq('session_id', sessionId)
+
+    if (messagesError) {
+      console.error('Supabase delete messages error:', messagesError)
+      return NextResponse.json(
+        { error: 'Failed to delete messages' },
+        { status: 500 }
+      )
+    }
+
+    // Delete the session itself
+    const { error: sessionError } = await supabase
+      .from('chat_sessions')
+      .delete()
+      .eq('session_id', sessionId)
+
+    if (sessionError) {
+      console.error('Supabase delete session error:', sessionError)
+      return NextResponse.json(
+        { error: 'Failed to delete session' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true, message: 'Session deleted successfully' })
+  } catch (error) {
+    console.error('Delete session error:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete session' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { sessionId } = await request.json()
