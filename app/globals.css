@@ -60,6 +60,42 @@
   }
 }
 
+/* ============================================
+   Mobile Responsiveness & Prevent iOS Zoom
+   ============================================ */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* Prevent double-tap zoom on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure no horizontal overflow on mobile */
+body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
+}
+
+/* Ensure chat container doesn't overflow */
+#__next, [data-nextjs-root] {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Smooth type-reveal animation for streaming text */
 @keyframes type-reveal {
   from {

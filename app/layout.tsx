@@ -105,6 +105,7 @@ export default function RootLayout({
   return (
     <html lang="en-BW" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         {/* Structured Data — Organization + WebApp + FAQ about Botswana DPA */}
         <script
           type="application/ld+json"

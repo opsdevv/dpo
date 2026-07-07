@@ -184,6 +184,16 @@ export function ChatInterface() {
   const inputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Prevent iOS zoom on focus by ensuring font-size >= 16px
+  useEffect(() => {
+    const preventZoom = () => {
+      if (inputRef.current) {
+        inputRef.current.style.fontSize = '16px'
+      }
+    }
+    preventZoom()
+  }, [])
+
   // Quick suggestion chips — Data Protection Act focus
   const quickSuggestions = [
     "What is the Data Protection Act?",
@@ -355,14 +365,14 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-0">
       {/* Banner Advertising Space */}
-      <div className="border-b border-white/10 bg-white/5">
-        <div className="max-w-4xl mx-auto w-full px-4 md:px-6 py-3 md:py-4">
-          <div className="flex items-center justify-center min-h-[60px] md:min-h-[80px] rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02]">
+      <div className="border-b border-white/10 bg-white/5 shrink-0">
+        <div className="max-w-4xl mx-auto w-full px-2 md:px-6 py-1.5 md:py-4">
+          <div className="flex items-center justify-center min-h-[40px] md:min-h-[80px] rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02]">
             <div className="text-center">
-              <p className="text-xs md:text-sm font-medium text-white/40">Advertisement Space</p>
-              <p className="text-[10px] text-white/30">728x90 or 300x250 recommended</p>
+              <p className="text-[10px] md:text-sm font-medium text-white/40">Advertisement Space</p>
+              <p className="hidden md:block text-[10px] text-white/30">728x90 or 300x250 recommended</p>
             </div>
           </div>
         </div>
@@ -371,7 +381,7 @@ export function ChatInterface() {
       {/* Messages Container */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent min-h-0"
       >
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
@@ -558,7 +568,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-white/10 bg-gradient-to-t from-slate-900/80 to-transparent">
+      <div className="border-t border-white/10 bg-gradient-to-t from-slate-900/80 to-transparent shrink-0">
         <div className="flex items-center justify-center px-4 md:px-6 py-4 md:py-5">
           <div className="w-full max-w-3xl">
             {/* Active suggestions from input */}
@@ -605,7 +615,8 @@ export function ChatInterface() {
                     }}
                     placeholder="Ask anything..."
                     disabled={loading}
-                    className="w-full border-0 bg-transparent text-[14px] md:text-[15px] text-white placeholder:text-white/30 focus:outline-none disabled:opacity-50"
+                    className="w-full border-0 bg-transparent text-[16px] md:text-[16px] text-white placeholder:text-white/30 focus:outline-none disabled:opacity-50"
+                    style={{ fontSize: '16px' }}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                         handleSubmit()
