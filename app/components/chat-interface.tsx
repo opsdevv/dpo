@@ -391,7 +391,7 @@ export function ChatInterface() {
       <div className="border-b border-white/10 bg-white/5 shrink-0">
         <div className="max-w-4xl mx-auto w-full px-2 md:px-6 py-1.5 md:py-4">
           {/* New Chat Button */}
-          <div className="flex items-center justify-end mb-1.5 md:mb-2">
+          <div className="flex items-center justify-end">
             <button
               onClick={startNewChat}
               disabled={loading}
@@ -401,14 +401,6 @@ export function ChatInterface() {
               <Plus className="h-3.5 w-3.5 text-teal-400" />
               <span className="text-[12px] text-white/50 group-hover:text-white/80">New Chat</span>
             </button>
-          </div>
-
-          {/* Banner ad space */}
-          <div className="flex items-center justify-center min-h-[40px] md:min-h-[80px] rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02]">
-            <div className="text-center">
-              <p className="text-[10px] md:text-sm font-medium text-white/40">Advertisement Space</p>
-              <p className="hidden md:block text-[10px] text-white/30">728x90 or 300x250 recommended</p>
-            </div>
           </div>
         </div>
       </div>

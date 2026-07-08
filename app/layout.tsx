@@ -105,6 +105,18 @@ export default function RootLayout({
   return (
     <html lang="en-BW" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
+        {/* Google Analytics */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6HFVRD8RR" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-Q6HFVRD8RR');
+            `,
+          }}
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         {/* Structured Data — Organization + WebApp + FAQ about Botswana DPA */}
         <script
