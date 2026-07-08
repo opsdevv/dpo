@@ -44,30 +44,44 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ## Step 2: Database Setup (Supabase)
 
+### Option A: Auto-setup (Recommended)
+The app will automatically create the required tables on first use. Simply start the app:
+```bash
+pnpm dev
+```
+Then visit `http://localhost:3000/api/setup` to verify the database is working.
+
+### Option B: Manual SQL Setup
 1. Go to your Supabase project dashboard
 2. Open the SQL Editor
-3. Run the following SQL to create tables:
+3. Copy the contents of `supabase/migrations/001_create_chat_tables.sql` and paste it in
+4. Click "Run"
 
+Or run this SQL directly:
 ```sql
--- Create chat_sessions table
-CREATE TABLE chat_sessions (
+CREATE TABLE IF NOT EXISTS chat_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id TEXT NOT NULL UNIQUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create chat_messages table
-CREATE TABLE chat_messages (
+CREATE TABLE IF NOT EXISTS chat_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id TEXT NOT NULL REFERENCES chat_sessions(session_id),
-  role TEXT NOT NULL,
+  session_id TEXT NOT NULL REFERENCES chat_sessions(session_id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
   content TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create index for faster lookups
-CREATE INDEX idx_session_id ON chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON chat_messages(created_at DESC);
+```
+
+### Verify Database
+Check if messages are being stored:
+```sql
+SELECT * FROM chat_messages ORDER BY created_at DESC LIMIT 5;
 ```
 
 ## Step 3: Vector Database Setup (Qdrant)

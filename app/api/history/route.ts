@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, initializeDatabase } from '@/lib/supabase'
+
+let dbInitialized = false
+
+async function ensureDb() {
+  if (dbInitialized) return
+  try {
+    await supabase.from('chat_sessions').select('id').limit(1)
+    dbInitialized = true
+  } catch {
+    console.log('⚙️ Initializing database tables...')
+    await initializeDatabase()
+    dbInitialized = true
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -96,10 +110,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create a new session
+    await ensureDb()
+
+    // Create a new session (upsert to handle duplicates)
     const { data, error } = await supabase
       .from('chat_sessions')
-      .insert({ session_id: sessionId })
+      .upsert({ 
+        session_id: sessionId,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'session_id' })
       .select()
 
     if (error) {

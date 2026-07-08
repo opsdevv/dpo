@@ -1,7 +1,23 @@
 import { NextRequest } from 'next/server'
 import { generateResponse, generateResponseStream, ChatMessage } from '@/lib/deepseek'
 import { searchPinecone } from '@/lib/pinecone'
-import { supabase } from '@/lib/supabase'
+import { supabase, initializeDatabase } from '@/lib/supabase'
+
+// Auto-initialize database on first request
+let dbInitialized = false
+
+async function ensureDb() {
+  if (dbInitialized) return
+  try {
+    // Test if tables exist
+    await supabase.from('chat_sessions').select('id').limit(1)
+    dbInitialized = true
+  } catch {
+    console.log('⚙️ Initializing database tables...')
+    await initializeDatabase()
+    dbInitialized = true
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +55,13 @@ export async function POST(request: NextRequest) {
     // Store user message immediately
     if (sessionId) {
       try {
+        await ensureDb()
+        // Ensure session exists before inserting message
+        await supabase.from('chat_sessions').upsert({
+          session_id: sessionId,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'session_id' }).select().single()
+        
         await supabase.from('chat_messages').insert({
           session_id: sessionId,
           role: 'user',
@@ -80,6 +103,7 @@ export async function POST(request: NextRequest) {
                     // Save full response to Supabase
                     if (sessionId && fullResponse) {
                       try {
+                        await ensureDb()
                         await supabase.from('chat_messages').insert({
                           session_id: sessionId,
                           role: 'assistant',
@@ -133,6 +157,7 @@ export async function POST(request: NextRequest) {
     // Store assistant response
     if (sessionId) {
       try {
+        await ensureDb()
         await supabase.from('chat_messages').insert({
           session_id: sessionId,
           role: 'assistant',
