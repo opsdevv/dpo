@@ -1,13 +1,28 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error('Missing Supabase environment variables')
+// Don't throw at import time - instead, get the client lazily
+let cachedSupabase: SupabaseClient | null = null
+
+export function getSupabase(): SupabaseClient {
+  if (cachedSupabase) return cachedSupabase
+  
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)')
+  }
+  
+  cachedSupabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+  return cachedSupabase
 }
 
-export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+// Export a supabase getter for backward compatibility
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    return getSupabase()[prop as keyof SupabaseClient]
+  }
+})
 
 /**
  * Execute a SQL statement via the exec_sql RPC function.
@@ -15,7 +30,7 @@ export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
  */
 async function execSql(sql: string): Promise<boolean> {
   try {
-    await supabase.rpc('exec_sql', { sql })
+    await getSupabase().rpc('exec_sql', { sql })
     return true
   } catch {
     return false

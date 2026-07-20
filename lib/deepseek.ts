@@ -1,7 +1,10 @@
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY
 
-if (!DEEPSEEK_API_KEY) {
-  throw new Error('Missing DEEPSEEK_API_KEY environment variable')
+function getDeepseekApiKey(): string {
+  if (!DEEPSEEK_API_KEY) {
+    throw new Error('Missing DEEPSEEK_API_KEY environment variable')
+  }
+  return DEEPSEEK_API_KEY
 }
 
 export interface ChatMessage {
@@ -48,7 +51,7 @@ export async function generateResponse(
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+        'Authorization': `Bearer ${getDeepseekApiKey()}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -88,7 +91,7 @@ export async function generateResponseStream(
   const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+      'Authorization': `Bearer ${getDeepseekApiKey()}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({

@@ -3,20 +3,27 @@ import { generateSimpleEmbedding } from './embeddings'
 const QDRANT_URL = process.env.QDRANT_URL
 const QDRANT_API_KEY = process.env.QDRANT_API_KEY
 
-if (!QDRANT_URL || !QDRANT_API_KEY) {
-  throw new Error('Missing Qdrant environment variables')
+function getQdrantConfig(): { url: string; apiKey: string } | null {
+  if (!QDRANT_URL || !QDRANT_API_KEY) {
+    console.warn('Qdrant environment variables not set, skipping Qdrant operations')
+    return null
+  }
+  return { url: QDRANT_URL, apiKey: QDRANT_API_KEY }
 }
 
 export async function searchQdrant(query: string, limit: number = 5) {
   try {
+    const config = getQdrantConfig()
+    if (!config) return []
+
     // Generate embedding for the search query
     const vector = generateSimpleEmbedding(query)
 
     // Perform search in Qdrant
-    const response = await fetch(`${QDRANT_URL}/collections/knowledge_base/points/search`, {
+    const response = await fetch(`${config.url}/collections/knowledge_base/points/search`, {
       method: 'POST',
       headers: {
-        'api-key': QDRANT_API_KEY,
+        'api-key': config.apiKey,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -41,9 +48,12 @@ export async function searchQdrant(query: string, limit: number = 5) {
 
 export async function getQdrantCollections() {
   try {
-    const response = await fetch(`${QDRANT_URL}/collections`, {
+    const config = getQdrantConfig()
+    if (!config) return []
+
+    const response = await fetch(`${config.url}/collections`, {
       headers: {
-        'api-key': QDRANT_API_KEY,
+        'api-key': config.apiKey,
         'Content-Type': 'application/json'
       }
     })
